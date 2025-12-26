@@ -31,7 +31,6 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-6">
 
-      {/* EMAIL */}
       <div>
         <label className="block text-sm font-medium mb-1 text-black">
           Email
@@ -52,7 +51,7 @@ export default function LoginForm() {
         )}
       </div>
 
-      {/* PASSWORD */}
+  
       <div>
         <label className="block text-sm font-medium mb-1 text-black">
           Password
@@ -73,14 +72,13 @@ export default function LoginForm() {
         )}
       </div>
 
-      {/* FORGOT PASSWORD */}
       <div className="text-sm text-right">
         <Link href="/forgot-password" className="text-gray-500 hover:underline">
           Forgot Password?
         </Link>
       </div>
 
-      {/* BUTTON */}
+
       <button
         disabled={isSubmitting || pending}
         className="w-full h-11 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition disabled:opacity-60"
@@ -98,4 +96,3 @@ export default function LoginForm() {
     </form>
   );
 }
-/////
