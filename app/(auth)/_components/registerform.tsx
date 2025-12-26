@@ -4,12 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { RegisterData, registerSchema } from "../schema";
-import {
-  UserIcon,
-  EnvelopeIcon,
-  PhoneIcon,
-  LockClosedIcon,
-} from "@heroicons/react/24/outline";
+import {UserIcon,EnvelopeIcon,PhoneIcon,LockClosedIcon,} from "@heroicons/react/24/outline";
 
 export default function RegisterForm() {
   const {

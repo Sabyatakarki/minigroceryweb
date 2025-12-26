@@ -86,7 +86,6 @@ export default function LoginForm() {
         {isSubmitting || pending ? "Logging in..." : "Log in"}
       </button>
 
-      {/* SIGN UP */}
       <p className="text-sm text-center text-gray-600">
         Don’t have an account?{" "}
         <Link href="/register" className="text-green-600 font-semibold">

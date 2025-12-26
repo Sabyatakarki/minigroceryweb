@@ -23,10 +23,9 @@ export default function HomePage() {
             </button>
           </Link>
 
-          {/* REGISTER */}
           <Link href="/register" className="block">
             <button className="w-full h-11 rounded-md border border-green-600 text-green-600 font-semibold hover:bg-green-50 transition">
-              Register
+              Create Account
             </button>
           </Link>
 
