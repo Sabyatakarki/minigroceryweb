@@ -7,7 +7,7 @@ export default function RegisterPage() {
       {/* LEFT – ILLUSTRATION */}
       <div className="hidden lg:flex items-center justify-center bg-white-50">
         <img
-          src="/loginImage.jpg"
+          src="/loginImage.jpg"//image
           alt="Fresh Picks Illustration"
           className="max-w-lg"
         />
