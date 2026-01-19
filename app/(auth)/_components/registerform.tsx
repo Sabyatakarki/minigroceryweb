@@ -12,6 +12,7 @@ import {
   PhoneIcon,
   LockClosedIcon,
 } from "@heroicons/react/24/outline";
+import { setAuthToken, setUserData } from "../../../lib/cookies";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function RegisterForm() {
   const [isError, setIsError] = useState(false);
 
   const {
-    register,
+    register: formRegister,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<RegisterData>({
@@ -27,23 +28,24 @@ export default function RegisterForm() {
   });
 
   const submit = async (values: RegisterData) => {
+    console.log("Submitting:", values); // Debug log
     try {
-      // Map frontend name → backend username
       const payload = {
-        username: values.name,
+        username: values.username,
+        fullname: values.fullname,
         email: values.email,
         password: values.password,
+        phonenumber: values.phonenumber,
       };
 
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
       const data = await res.json();
+      console.log("Response:", data);
 
       if (!res.ok) {
         setIsError(true);
@@ -51,27 +53,27 @@ export default function RegisterForm() {
         return;
       }
 
+      // Store token & user in cookies
+      if (data.token) await setAuthToken(data.token);
+      if (data.data) await setUserData(data.data);
+
       setIsError(false);
       setMessage("Account created successfully! Redirecting to login...");
 
-      setTimeout(() => {
-        router.push("/login");
-      }, 3000);
+      setTimeout(() => router.push("/login"), 3000);
     } catch (error) {
       setIsError(true);
       setMessage("Something went wrong. Please try again.");
+      console.error(error);
     }
   };
 
   return (
     <>
-      {/* SNACKBAR */}
       {message && (
         <div
           className={`mb-4 rounded px-4 py-2 text-sm ${
-            isError
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700"
+            isError ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
           }`}
         >
           {message}
@@ -79,20 +81,37 @@ export default function RegisterForm() {
       )}
 
       <form onSubmit={handleSubmit(submit)} className="space-y-5">
-        {/* FULL NAME */}
+        {/* USERNAME */}
         <div>
           <label className="block text-sm font-medium mb-1 text-black">
-            Full name:
+            Username:
           </label>
           <div className="relative">
             <UserIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...register("name")}
+              {...formRegister("username")}
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
           </div>
-          {errors.name && (
-            <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+          {errors.username && (
+            <p className="text-xs text-red-500 mt-1">{errors.username.message}</p>
+          )}
+        </div>
+
+        {/* FULL NAME */}
+        <div>
+          <label className="block text-sm font-medium mb-1 text-black">
+            Full Name:
+          </label>
+          <div className="relative">
+            <UserIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              {...formRegister("fullname")}
+              className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
+            />
+          </div>
+          {errors.fullname && (
+            <p className="text-xs text-red-500 mt-1">{errors.fullname.message}</p>
           )}
         </div>
 
@@ -104,7 +123,7 @@ export default function RegisterForm() {
           <div className="relative">
             <EnvelopeIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...register("email")}
+              {...formRegister("email")}
               type="email"
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
@@ -122,14 +141,12 @@ export default function RegisterForm() {
           <div className="relative">
             <PhoneIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...register("phonenumber")}
+              {...formRegister("phonenumber")}
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
           </div>
           {errors.phonenumber && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.phonenumber.message}
-            </p>
+            <p className="text-xs text-red-500 mt-1">{errors.phonenumber.message}</p>
           )}
         </div>
 
@@ -141,7 +158,7 @@ export default function RegisterForm() {
           <div className="relative">
             <LockClosedIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...register("password")}
+              {...formRegister("password")}
               type="password"
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
@@ -159,15 +176,13 @@ export default function RegisterForm() {
           <div className="relative">
             <LockClosedIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...register("confirmPassword")}
+              {...formRegister("confirmPassword")}
               type="password"
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
           </div>
           {errors.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.confirmPassword.message}
-            </p>
+            <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
           )}
         </div>
 
