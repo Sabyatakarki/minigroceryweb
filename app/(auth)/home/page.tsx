@@ -13,18 +13,17 @@ export default function HomePage() {
           Welcome! Please login or create an account to continue.
         </p>
 
-        {/* BUTTONS */}
         <div className="space-y-6">
           
-          {/* LOGIN */}
+        
           <Link href="/login" className="block">
-            <button className="w-full h-11 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition">
+            <button className="w-60 h-11 rounded-md bg-green-600 text-white font-semibold hover:bg-green-700 transition">
               Login
             </button>
           </Link>
 
           <Link href="/register" className="block">
-            <button className="w-full h-11 rounded-md border border-green-600 text-green-600 font-semibold hover:bg-green-50 transition">
+            <button className="w-60 h-11 rounded-md border border-green-600 text-green-600 font-semibold hover:bg-green-50 transition">
               Create Account
             </button>
           </Link>
