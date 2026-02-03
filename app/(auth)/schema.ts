@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+/* ---------- LOGIN ---------- */
 export const loginSchema = z.object({
   email: z.string().email({ message: "Enter a valid email" }),
   password: z.string().min(6, { message: "Minimum 6 characters" }),
@@ -7,16 +8,20 @@ export const loginSchema = z.object({
 
 export type LoginData = z.infer<typeof loginSchema>;
 
+/* ---------- REGISTER ---------- */
 export const registerSchema = z
   .object({
-    username: z.string().min(2, { message: "Enter your name" }),
-    fullname: z.string().min(2, { message: "Enter your full name" }), 
+    fullName: z.string().min(2, { message: "Enter your full name" }),
+    username: z.string().min(3, { message: "Username must be at least 3 characters" }),
     email: z.string().email({ message: "Enter a valid email" }),
+    phoneNumber: z
+      .string()
+      .min(7, { message: "Enter a valid phone number" })
+      .max(15, { message: "Enter a valid phone number" }),
     password: z.string().min(6, { message: "Minimum 6 characters" }),
-    phonenumber: z.string().min(10, { message: "Enter a valid phone number" }),
     confirmPassword: z.string().min(6, { message: "Minimum 6 characters" }),
   })
-  .refine((v) => v.password === v.confirmPassword, {
+  .refine((data) => data.password === data.confirmPassword, {
     path: ["confirmPassword"],
     message: "Passwords do not match",
   });

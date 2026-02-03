@@ -1,7 +1,7 @@
 export default function Page() {
     return (
         <div>
-            Welcome back!!!
+            About US
         </div>
     );
 }

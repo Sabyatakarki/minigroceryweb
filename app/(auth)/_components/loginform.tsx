@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoginData, loginSchema } from "../schema";
 import { EnvelopeIcon, LockClosedIcon } from "@heroicons/react/24/outline";
-import { setAuthToken, setUserData } from "../../../lib/cookies";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -20,15 +19,17 @@ export default function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const submit = async (values: LoginData) => {
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
@@ -40,25 +41,37 @@ export default function LoginForm() {
         return;
       }
 
-      // Save token and user to cookies
-      await setAuthToken(data.token);
-      await setUserData(data.data);
+      // ✅ MATCHES YOUR BACKEND AuthController RESPONSE:
+      // { success, message, data: user, token }
+      const token = data?.token;
+      const user = data?.data;
+
+      if (!token || !user) {
+        setIsError(true);
+        setMessage("Login response missing token/user");
+        console.log("FULL LOGIN RESPONSE:", data);
+        return;
+      }
+
+      // ✅ Save for Profile page
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
       setIsError(false);
       setMessage("Login successful! Redirecting...");
 
       setTimeout(() => {
         router.push("/dashboard");
-      }, 3000);
+      }, 800);
     } catch (error) {
       setIsError(true);
       setMessage("Something went wrong. Please try again.");
+      console.error(error);
     }
   };
 
   return (
     <>
-      {/* SNACKBAR */}
       {message && (
         <div
           className={`mb-4 rounded px-4 py-2 text-sm ${
@@ -80,7 +93,7 @@ export default function LoginForm() {
             <input
               {...register("email")}
               type="email"
-              placeholder="you@example.com"
+              placeholder="name@example.com"
               className="w-full h-11 rounded-md border border-gray-300 pl-10 pr-3 text-sm text-black placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -104,7 +117,9 @@ export default function LoginForm() {
             />
           </div>
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 

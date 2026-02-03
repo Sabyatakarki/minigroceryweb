@@ -25,17 +25,25 @@ export default function RegisterForm() {
     formState: { errors, isSubmitting },
   } = useForm<RegisterData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      username: "",
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const submit = async (values: RegisterData) => {
-    console.log("Submitting:", values); // Debug log
     try {
       const payload = {
         username: values.username,
-        fullname: values.fullname,
+        fullName: values.fullName,
         email: values.email,
+        phoneNumber: values.phoneNumber,
         password: values.password,
-        phonenumber: values.phonenumber,
+        confirmPassword: values.confirmPassword,
       };
 
       const res = await fetch("http://localhost:5000/api/auth/register", {
@@ -45,7 +53,6 @@ export default function RegisterForm() {
       });
 
       const data = await res.json();
-      console.log("Response:", data);
 
       if (!res.ok) {
         setIsError(true);
@@ -53,13 +60,11 @@ export default function RegisterForm() {
         return;
       }
 
-      // Store token & user in cookies
       if (data.token) await setAuthToken(data.token);
       if (data.data) await setUserData(data.data);
 
       setIsError(false);
       setMessage("Account created successfully! Redirecting to login...");
-
       setTimeout(() => router.push("/login"), 3000);
     } catch (error) {
       setIsError(true);
@@ -94,7 +99,9 @@ export default function RegisterForm() {
             />
           </div>
           {errors.username && (
-            <p className="text-xs text-red-500 mt-1">{errors.username.message}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.username.message}
+            </p>
           )}
         </div>
 
@@ -106,12 +113,14 @@ export default function RegisterForm() {
           <div className="relative">
             <UserIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...formRegister("fullname")}
+              {...formRegister("fullName")}
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
           </div>
-          {errors.fullname && (
-            <p className="text-xs text-red-500 mt-1">{errors.fullname.message}</p>
+          {errors.fullName && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.fullName.message}
+            </p>
           )}
         </div>
 
@@ -141,12 +150,14 @@ export default function RegisterForm() {
           <div className="relative">
             <PhoneIcon className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
             <input
-              {...formRegister("phonenumber")}
+              {...formRegister("phoneNumber")}
               className="w-full h-11 rounded-md border border-green-700 pl-10 pr-3 text-sm text-black focus:outline-none"
             />
           </div>
-          {errors.phonenumber && (
-            <p className="text-xs text-red-500 mt-1">{errors.phonenumber.message}</p>
+          {errors.phoneNumber && (
+            <p className="text-xs text-red-500 mt-1">
+              {errors.phoneNumber.message}
+            </p>
           )}
         </div>
 
@@ -164,7 +175,9 @@ export default function RegisterForm() {
             />
           </div>
           {errors.password && (
-            <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.password.message}
+            </p>
           )}
         </div>
 
@@ -182,7 +195,9 @@ export default function RegisterForm() {
             />
           </div>
           {errors.confirmPassword && (
-            <p className="text-xs text-red-500 mt-1">{errors.confirmPassword.message}</p>
+            <p className="text-xs text-red-500 mt-1">
+              {errors.confirmPassword.message}
+            </p>
           )}
         </div>
 
