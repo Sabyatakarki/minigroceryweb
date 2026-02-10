@@ -121,7 +121,7 @@ export default function CreateUserForm() {
                         />
                     )}
                 />
-                {errors.image && <p className="text-sm text-red-600">{errors.image.message}</p>}
+                {/* {errors.image && <p className="text-sm text-red-600">{errors.image.message}</p>} */}
             </div>
 
             <div className="grid grid-cols-2 gap-4">

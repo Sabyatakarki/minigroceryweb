@@ -1,4 +1,3 @@
-// app/(auth)/login/page.tsx
 import LoginForm from "../_components/loginform";
 
 export default function LoginPage() {

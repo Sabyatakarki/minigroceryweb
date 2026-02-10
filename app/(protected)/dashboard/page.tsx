@@ -19,8 +19,7 @@ export default function DashboardPage() {
           <a href="#" className="hover:underline">Contact</a>
         </nav>
 
-        {/* Profile avatar → Profile page */}
-        <Link href="/profile">
+        <Link href="/user/profile">
           <img
             src="/profile.png"
             alt="Profile"

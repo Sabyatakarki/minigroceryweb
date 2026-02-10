@@ -138,7 +138,7 @@ export default function ProfilePage() {
           <a href="#about" className="hover:underline">
             About us
           </a>
-          <a href="#menu" className="hover:underline">
+          <a href="#Categories" className="hover:underline">
             Menu
           </a>
           <a href="#contact" className="hover:underline">

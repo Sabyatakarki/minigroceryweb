@@ -11,6 +11,10 @@ export const API = {
     ADMIN:{
         USER:{
             CREATE: '/api/admin/users/',
+            LIST: '/api/admin/users/',
+            DETAIL: '/api/admin/users',
+            UPDATE: '/api/admin/users',
+            DELETE: '/api/admin/users',
         }
     }
 }

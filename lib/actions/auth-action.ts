@@ -25,7 +25,6 @@ export const handleRegister = async (formData: any) => {
     return { success: false, message: err.message || "Registration failed" };
   }
 };
-
 export const handleLogin = async (formData: any) => {
   try {
     const result = await login(formData);
@@ -40,7 +39,12 @@ export const handleLogin = async (formData: any) => {
     await setAuthToken(result.token);
     await setUserData(result.data);
 
-    redirect("/dashboard");
+    
+    if (result.data.role === "admin") {
+      redirect("/admin");
+    } else {
+      redirect("/dashboard");
+    }
   } catch (err: any) {
     return { success: false, message: err.message || "Login failed" };
   }
