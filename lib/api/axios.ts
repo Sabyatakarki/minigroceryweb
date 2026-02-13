@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuthToken } from "../cookies"; 
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL 
-    || "http://localhost:5050";
+    || "http://localhost:5000";
 const axiosInstance = axios.create(
     {
         baseURL: BASE_URL,
