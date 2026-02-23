@@ -1,25 +1,52 @@
 "use client";
 
-import { Controller, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
-import { UserData, UserSchema } from "@/app/admin/users/schema";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { handleCreateUser } from "@/lib/actions/admin/user-action";
-import { Camera, X, User, Mail, Lock, UserPlus, Loader2 } from "lucide-react";
+
+import { UserSchema, UserFormValues } from "@/app/admin/users/schema";
+import { API } from "@/lib/api/endpoints";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+
+function getCookie(name: string) {
+  const part = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`));
+  return part ? decodeURIComponent(part.split("=").slice(1).join("=")) : null;
+}
 
 export default function CreateUserForm() {
   const [pending, startTransition] = useTransition();
-  const { register, handleSubmit, control, reset, formState: { errors, isSubmitting } } = useForm<UserData>({
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<UserFormValues>({
     resolver: zodResolver(UserSchema),
+    defaultValues: {
+      role: "user",
+      fullName: "",
+      username: "",
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+      image: undefined,
+    },
   });
 
-  const router = useRouter();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageChange = (file: File | undefined, onChange: (file: File | undefined) => void) => {
+  const handleImageChange = (
+    file: File | undefined,
+    onChange: (value: any) => void
+  ) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setPreviewImage(reader.result as string);
@@ -30,137 +57,200 @@ export default function CreateUserForm() {
     onChange(file);
   };
 
-  const handleDismissImage = (onChange?: (file: File | undefined) => void) => {
+  const clearImage = (onChange?: (value: any) => void) => {
     setPreviewImage(null);
     onChange?.(undefined);
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const onSubmit = async (data: UserData) => {
-    startTransition(async () => {
-      try {
-        const formData = new FormData();
-        formData.append('firstName', data.firstName || '');
-        formData.append('lastName', data.lastName || '');
-        formData.append('email', data.email);
-        formData.append('username', data.username);
-        formData.append('password', data.password);
-        formData.append('confirmPassword', data.confirmPassword);
-        if (data.image) formData.append('image', data.image);
+  const onSubmit: SubmitHandler<UserFormValues> = (data) => {
+    startTransition(() => {
+      (async () => {
+        try {
+          const token = getCookie("auth_token");
+          if (!token) throw new Error("Not logged in (missing auth_token)");
 
-        const response = await handleCreateUser(formData);
+          const fd = new FormData();
+          fd.append("fullName", data.fullName);
+          fd.append("username", data.username);
+          fd.append("email", data.email);
+          fd.append("phoneNumber", data.phoneNumber);
+          fd.append("password", data.password);
+          fd.append("confirmPassword", data.confirmPassword);
+          fd.append("role", data.role ?? "user");
 
-        if (!response.success) throw new Error(response.message);
+          if (data.image) {
+            fd.append("image", data.image as File);
+          }
 
-        toast.success(response.message || 'User created successfully');
-        reset();
-        handleDismissImage();
-        router.push('/admin/users');
-      } catch (error: any) {
-        toast.error(error.message || 'Create user failed');
-      }
+          const res = await fetch(`${API_BASE}${API.ADMIN.USERS}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+            body: fd,
+          });
+
+          const raw = await res.text();
+          let json: any = null;
+          try {
+            json = raw ? JSON.parse(raw) : null;
+          } catch {}
+
+          if (!res.ok) {
+            throw new Error(json?.message || raw || `Failed (${res.status})`);
+          }
+
+          toast.success("User created ✅");
+          reset();
+          clearImage();
+        } catch (err: any) {
+          toast.error(err?.message || "Create user failed");
+        }
+      })();
     });
   };
 
+  // Helper for consistent input styles
+  const inputClasses = "w-full border border-gray-200 px-4 py-2.5 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all bg-white text-gray-800 placeholder:text-gray-400";
+  const labelClasses = "block text-sm font-bold text-gray-700 mb-1.5 ml-1";
+
   return (
-    <div className="w-full bg-[#fcfdfc] min-h-screen py-10 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-12 text-left">
-          <h2 className="text-3xl font-black text-gray-900 tracking-tight">
-            Create New <span className="text-emerald-600">User</span>
-          </h2>
-          <p className="text-gray-400 font-medium mt-2">Enter details to add a new member to the platform.</p>
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Profile Image */}
-          <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
-            <div className="relative">
-              <div className="w-24 h-24 rounded-[2rem] bg-emerald-50 border-2 border-emerald-100 flex items-center justify-center overflow-hidden shadow-inner">
-                {previewImage ? (
-                  <img src={previewImage} alt="Preview" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-10 h-10 text-emerald-200" />
-                )}
-              </div>
-
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 bg-white p-1">
+      {/* Profile Picture Upload Section */}
+      <div className="flex flex-col items-center sm:items-start gap-4 pb-4 border-b border-gray-50">
+        <label className={labelClasses}>Profile Picture</label>
+        <div className="flex items-center gap-5">
+          {previewImage ? (
+            <div className="relative w-20 h-20 group">
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="w-20 h-20 rounded-2xl object-cover ring-2 ring-emerald-100"
+              />
               <Controller
                 name="image"
                 control={control}
                 render={({ field: { onChange } }) => (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="absolute -bottom-2 -right-2 bg-emerald-600 text-white p-2.5 rounded-2xl shadow-lg shadow-emerald-200 hover:bg-emerald-700 transition-all active:scale-90"
-                    >
-                      <Camera size={16} />
-                    </button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      className="hidden"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
-                    />
-                    {previewImage && (
-                      <button
-                        type="button"
-                        onClick={() => handleDismissImage(onChange)}
-                        className="absolute -top-2 -left-2 bg-white text-red-500 border border-red-100 rounded-xl p-1.5 shadow-sm hover:bg-red-50"
-                      >
-                        <X size={14} />
-                      </button>
-                    )}
-                  </>
+                  <button
+                    type="button"
+                    onClick={() => clearImage(onChange)}
+                    className="absolute -top-2 -right-2 bg-white text-red-500 shadow-md border border-red-50 rounded-full w-7 h-7 flex items-center justify-center hover:bg-red-50 transition-colors"
+                  >
+                    ✕
+                  </button>
                 )}
               />
             </div>
-            <div>
-              <h4 className="text-sm font-black text-gray-900 uppercase tracking-widest">Avatar</h4>
-              <p className="text-xs text-gray-400 font-medium mt-1">PNG, JPG or GIF. Max 2MB.</p>
+          ) : (
+            <div className="w-20 h-20 bg-emerald-50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-emerald-100 group-hover:border-emerald-200 transition-colors">
+              <span className="text-emerald-700 text-[10px] font-black uppercase">No Image</span>
             </div>
-          </div>
+          )}
 
-          {/* Inputs */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-            <InputField label="First Name" {...register("firstName")} error={errors.firstName?.message} placeholder="sabyata" />
-            <InputField label="Last Name" {...register("lastName")} error={errors.lastName?.message} placeholder="karki" />
-            <InputField label="Email" {...register("email")} error={errors.email?.message} placeholder="email@freshcart.com" icon={<Mail size={20} />} mdColSpan />
-            <InputField label="Username" {...register("username")} error={errors.username?.message} placeholder="sabyataaaa" mdColSpan />
-            <InputField label="Password" {...register("password")} error={errors.password?.message} placeholder="••••••••" type="password" icon={<Lock size={20} />} />
-            <InputField label="Confirm Password" {...register("confirmPassword")} error={errors.confirmPassword?.message} placeholder="••••••••" type="password" icon={<Lock size={20} />} />
+          <div className="flex-1">
+            <Controller
+              name="image"
+              control={control}
+              render={({ field: { onChange } }) => (
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.webp"
+                  onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
+                  className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer"
+                />
+              )}
+            />
+            <p className="mt-1.5 text-[10px] text-gray-400 uppercase tracking-wider">JPG, PNG or WEBP. Max 2MB.</p>
           </div>
-
-          {/* Submit */}
-          <div className="pt-6 flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting || pending}
-              className="w-full md:w-auto px-12 h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-xl shadow-emerald-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
-            >
-              {isSubmitting || pending ? <Loader2 className="w-5 h-5 animate-spin" /> : <><UserPlus size={20} /><span>Create User Account</span></>}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
-  );
-}
 
-// Reusable Input Component
-function InputField({ label, error, icon, mdColSpan = false, ...props }: any) {
-  return (
-    <div className={`space-y-2 ${mdColSpan ? 'md:col-span-2' : ''}`}>
-      <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
-      <div className="relative">
-        {icon && <div className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300">{icon}</div>}
-        <input
-          {...props}
-          className={`w-full h-14 px-5 ${icon ? 'pl-14' : ''} pr-5 rounded-2xl border border-gray-100 bg-white focus:ring-4 focus:ring-emerald-50 focus:border-emerald-500 outline-none transition-all font-bold text-gray-900 shadow-sm`}
-        />
+      {/* Grid for Inputs */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div>
+          <label className={labelClasses}>Full Name</label>
+          <input placeholder="John Doe" className={inputClasses} {...register("fullName")} />
+          {errors.fullName && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.fullName.message)}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelClasses}>Username</label>
+          <input placeholder="johndoe123" className={inputClasses} {...register("username")} />
+          {errors.username && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.username.message)}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelClasses}>Email Address</label>
+          <input type="email" placeholder="john@example.com" className={inputClasses} {...register("email")} />
+          {errors.email && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.email.message)}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelClasses}>Phone Number</label>
+          <input placeholder="+1 234..." className={inputClasses} {...register("phoneNumber")} />
+          {errors.phoneNumber && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.phoneNumber.message)}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelClasses}>Account Role</label>
+          <select className={inputClasses} {...register("role")}>
+            <option value="user">Customer / User</option>
+            <option value="admin">Administrator</option>
+          </select>
+        </div>
       </div>
-      {error && <p className="text-xs text-red-500 font-bold mt-1 ml-1">{error}</p>}
-    </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+        <div>
+          <label className={labelClasses}>Password</label>
+          <input type="password" placeholder="••••••••" className={inputClasses} {...register("password")} />
+          {errors.password && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.password.message)}</p>
+          )}
+        </div>
+
+        <div>
+          <label className={labelClasses}>Confirm Password</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            className={inputClasses}
+            {...register("confirmPassword")}
+          />
+          {errors.confirmPassword && (
+            <p className="mt-1.5 text-xs text-red-500 font-medium">{String(errors.confirmPassword.message)}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Submit Button */}
+      <div className="pt-4">
+        <button
+          type="submit"
+          disabled={isSubmitting || pending}
+          className="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold hover:bg-emerald-700 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg shadow-emerald-200"
+        >
+          {isSubmitting || pending ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+              Processing...
+            </span>
+          ) : (
+            "Create Account"
+          )}
+        </button>
+      </div>
+    </form>
   );
 }

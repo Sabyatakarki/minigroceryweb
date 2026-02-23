@@ -1,8 +1,5 @@
 import axios from  './axios';
 import { API } from './endpoints';
-import { LoginData, RegisterData } from "@/app/(auth)/schema"
-
-
 export const register = async(registerData:any)=>{
     try{
         const response = await axios.post(API.AUTH.REGISTER, registerData);
@@ -50,8 +47,8 @@ export const updateProfile = async (updateData: any) => {
             || "Failed to update profile" 
         );
     }
+    
 }
-
 
 export const requestPasswordReset = async (email: string) => {
     try {
