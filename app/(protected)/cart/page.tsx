@@ -22,22 +22,21 @@ import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 interface Product {
   _id: string;
   name: string;
   image: string;
-  category:String;
+  category: String;
   quantity: number;
   price?: number;
 }
 
 export default function CartPage() {
   const [cart, setCart] = useState<Product[]>([]);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Keep open by default for desktop consistency
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -68,48 +67,15 @@ export default function CartPage() {
   const deliveryFee = cart.length > 0 ? 40 : 0;
   const total = subtotal + deliveryFee;
 
-const handleOrder = async (file?: File) => {
-  try {
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please login first");
-      setLoading(false);
+  // ✅ Just navigate to orderDetail page, no backend
+  const handleOrder = () => {
+    if (cart.length === 0) {
+      toast.error("Your cart is empty");
       return;
     }
-
-    const formattedProducts = cart.map((item) => ({
-      product: item._id,
-      quantity: item.quantity,
-    }));
-
-    const formData = new FormData();
-    formData.append("products", JSON.stringify(formattedProducts));
-    if (file) {
-      formData.append("image", file); // this matches your backend multer field
-    }
-
-    const response = await fetch(`${BACKEND_URL}/api/orders`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`, // don’t set Content-Type, let browser set it for FormData
-      },
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.message || "Order failed");
-
-    toast.success("Order placed successfully!");
-    localStorage.removeItem("cart");
-    setCart([]);
     setShowModal(false);
-  } catch (error: any) {
-    toast.error(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
+    window.location.href = "/orderDetail";
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFB] selection:bg-emerald-100">
@@ -254,7 +220,7 @@ const handleOrder = async (file?: File) => {
         </main>
       </div>
 
-      {/* --- PREMIUM MODAL --- */}
+      {/* --- MODAL --- */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
           <div className="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
@@ -274,11 +240,10 @@ const handleOrder = async (file?: File) => {
                 Go Back
               </button>
               <button
-                onClick={() => handleOrder()}
-                disabled={loading}
-                className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 disabled:opacity-50"
+                onClick={handleOrder}
+                className="flex-1 py-4 bg-emerald-600 text-white rounded-2xl font-bold hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100"
               >
-                {loading ? "Ordering..." : "Confirm"}
+                Confirm
               </button>
             </div>
           </div>

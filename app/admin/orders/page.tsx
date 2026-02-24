@@ -13,6 +13,14 @@ interface OrderProduct {
   quantity: number;
 }
 
+interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  street: string;
+  city: string;
+  
+}
+
 interface Order {
   _id: string;
   user: { _id: string; fullName: string };
@@ -21,6 +29,7 @@ interface Order {
   paymentMethod: string;
   status: string;
   createdAt: string;
+  shippingAddress: ShippingAddress; 
 }
 
 export default function AdminOrdersPage() {
@@ -45,25 +54,25 @@ export default function AdminOrdersPage() {
   };
 
   const confirmOrder = async (id: string) => {
-  try {
-    const token = localStorage.getItem("token");
-    const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
-      method: "PUT", // matches your backend route
-      headers: {
-        "Content-Type": "application/json", // important!
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ status: "confirmed" }), // send status here
-    });
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${BACKEND_URL}/api/orders/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status: "confirmed" }),
+      });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Failed to confirm");
-    toast.success("Order confirmed");
-    fetchOrders();
-  } catch (err: any) {
-    toast.error(err.message);
-  }
-};
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to confirm");
+      toast.success("Order confirmed");
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
 
   useEffect(() => { fetchOrders(); }, []);
 
@@ -107,6 +116,7 @@ export default function AdminOrdersPage() {
           <div className="space-y-6">
             {orders.map((order) => (
               <div key={order._id} className="bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-emerald-50 transition-all">
+                
                 <div className="flex justify-between items-center mb-4">
                   <div>
                     <p className="text-sm text-gray-400">Order ID</p>
@@ -119,6 +129,7 @@ export default function AdminOrdersPage() {
                   </span>
                 </div>
 
+                {/* Products */}
                 <div className="divide-y divide-emerald-50">
                   {order.products.map((p) => (
                     <div key={p.product._id} className="flex items-center gap-4 py-3">
@@ -130,6 +141,19 @@ export default function AdminOrdersPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Shipping Address */}
+                {order.shippingAddress && (
+                  <div className="mt-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                    <p className="font-semibold text-gray-800 mb-1">Shipping Address</p>
+                    <p className="text-gray-600">{order.shippingAddress.fullName}</p>
+                    <p className="text-gray-600">{order.shippingAddress.phone}</p>
+                    <p className="text-gray-600">
+                      {order.shippingAddress.street}, {order.shippingAddress.city}
+                    
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-emerald-50">
                   <div className="text-sm text-gray-500">

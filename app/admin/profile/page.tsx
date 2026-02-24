@@ -135,10 +135,12 @@ const saveChanges = async () => {
     const newProfileImage = data.data.profileImage || previewUrl || user.profileImage;
 
     const updatedUser = {
-      ...user,
-      ...data.data,
-      profileImage: newProfileImage,
-    };
+  ...user,
+  ...data.data,
+  profileImage: newProfileImage,
+   
+
+};
 
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));

@@ -99,16 +99,33 @@ export default async function AdminDashboardPage() {
           <AdminLogoutButton />
         </div>
       </aside>
-
-      {/* Main content - Shifted for fixed sidebar */}
+      
       <main className="flex-1 lg:ml-72 p-6 md:p-12">
-        <header className="mb-10">
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">
-            Store <span className="text-emerald-600 italic">Insights</span>
-          </h1>
-          <p className="text-gray-500 mt-2 font-medium">Welcome back, Captain. Here’s what’s happening today.</p>
-        </header>
+        <header className="mb-10 flex items-center justify-between">
+  {/* Left Side */}
+  <div>
+    <h1 className="text-4xl font-black text-gray-900 tracking-tight">
+      Store <span className="text-emerald-600 italic">Insights</span>
+    </h1>
+    <p className="text-gray-500 mt-2 font-medium">
+      Welcome back, Captain. Here’s what’s happening today.
+    </p>
+  </div>
 
+
+  <Link
+    href="/admin/profile"
+    className="flex items-center gap-3 bg-white px-3 py-2 rounded-2xl border border-emerald-100 shadow-sm hover:shadow-md transition-all"
+  >
+    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-emerald-500">
+      <img
+        src="/profile.png"
+        alt="Admin Profile"
+        className="w-full h-full object-cover"
+      />
+    </div>
+  </Link>
+</header>
         {error ? (
           <div className="rounded-3xl border-2 border-red-100 bg-red-50 p-8 text-red-700 flex items-center gap-4">
             <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-2xl">⚠️</div>
@@ -117,6 +134,8 @@ export default async function AdminDashboardPage() {
               <p className="text-sm opacity-80">{error}</p>
             </div>
           </div>
+
+          
         ) : (
           <div className="space-y-12">
             {/* Stats row - Floating Card Style */}
@@ -137,6 +156,8 @@ export default async function AdminDashboardPage() {
                   <RecentUsersList users={recentUsers} />
                 </div>
               </div>
+                
+  
 
               {/* Top Products Section */}
               <div className="xl:col-span-2">
