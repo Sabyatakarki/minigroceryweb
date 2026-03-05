@@ -12,7 +12,7 @@ interface OrderProduct {
   product: { _id: string; name: string; image?: string; price?: number };
   quantity: number;
 }
-
+ 
 interface ShippingAddress {
   fullName: string;
   phone: string;

@@ -21,8 +21,10 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
 
 interface Product {
   _id: string;
@@ -43,6 +45,8 @@ export default function CartPage() {
     const savedCart = JSON.parse(localStorage.getItem("cart") || "[]");
     setCart(savedCart);
   }, []);
+
+  const router = useRouter();
 
   const removeFromCart = (id: string) => {
     const updated = cart.filter((item) => item._id !== id);
@@ -74,7 +78,7 @@ export default function CartPage() {
       return;
     }
     setShowModal(false);
-    window.location.href = "/orderDetail";
+    router.push("/orderDetail");
   };
 
   return (

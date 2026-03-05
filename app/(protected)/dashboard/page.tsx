@@ -139,13 +139,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Notification Bell */}
-            <button className="relative p-3 text-slate-500 hover:bg-emerald-50 hover:text-emerald-600 rounded-2xl transition-all duration-200 group">
-              <Bell size={22} />
-              <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white group-hover:scale-110 transition-transform"></span>
-            </button>
-
-            <div className="h-10 w-[1px] bg-slate-200 mx-1"></div>
+          
 
             {/* Profile Section */}
             <Link href="/user/profile" className="flex items-center gap-3 p-1.5 pr-4 hover:bg-white rounded-2xl border border-transparent hover:border-slate-100 transition-all shadow-sm hover:shadow-md group">

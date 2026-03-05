@@ -10,10 +10,10 @@ export default function HomePage() {
         </h1>
 
         <nav className="hidden md:flex gap-20 text-sm font-semibold text-green-800/70">
-          <a href="#" className="hover:text-green-600 transition-colors">Home</a>
-          <a href="#" className="hover:text-green-600 transition-colors">About us</a>
-          <a href="#" className="hover:text-green-600 transition-colors">Categories</a>
-          <a href="#" className="hover:text-green-600 transition-colors">Contact</a>
+          <a href="#Home" className="hover:text-green-600 transition-colors">Home</a>
+          <a href="#About" className="hover:text-green-600 transition-colors">About us</a>
+          <a href="#Categories" className="hover:text-green-600 transition-colors">Categories</a>
+          <a href="#Contact" className="hover:text-green-600 transition-colors">Contact</a>
         </nav>
 
         <Link
@@ -25,7 +25,7 @@ export default function HomePage() {
       </header>
 
       {/* HERO SECTION */}
-      <section className="relative overflow-hidden px-6 md:px-16 py-24 lg:py-32 max-w-7xl mx-auto">
+       <section id="Home" className="relative overflow-hidden px-6 md:px-16 py-24 lg:py-32 max-w-7xl mx-auto">
         {/* Background Decorative Elements */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-100/50 rounded-full blur-3xl -z-10 animate-pulse"></div>
         <div className="absolute top-1/2 -left-24 w-72 h-72 bg-emerald-50 rounded-full blur-3xl -z-10"></div>
@@ -114,7 +114,7 @@ export default function HomePage() {
       </section>
 
       {/* POPULAR SECTION - Now set to Half Width (Grid of 2) */}
-      <section className="px-6 md:px-16 py-24 bg-white">
+      <section id="Categories" className="px-6 md:px-16 py-24 bg-white">
         <div className="max-w-6xl mx-auto">
           <h3 className="text-3xl font-extrabold mb-12 text-center md:text-left">
             Popular at Fresh Picks
@@ -178,7 +178,7 @@ export default function HomePage() {
       </section>
 
       {/* WHY CHOOSE US */}
-      <section className="px-6 md:px-16 py-24 bg-gray-50">
+      <section id="About" className="px-6 md:px-16 py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             { icon: "🥬", title: "Fresh & Organic", desc: "Handpicked fresh products from trusted suppliers." },
@@ -195,7 +195,7 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="mx-6 md:mx-16 my-16 bg-green-600 rounded-[3rem] py-16 px-6 text-white text-center">
+      <section id="cta"  className="mx-6 md:mx-16 my-16 bg-green-600 rounded-[3rem] py-16 px-6 text-white text-center">
         <h3 className="text-3xl md:text-4xl font-bold mb-4">Ready to shop fresh groceries?</h3>
         <p className="text-green-50 mb-8 opacity-90">Join thousands of happy customers using Fresh Picks every day.</p>
         <button className="bg-white text-green-700 px-10 py-3.5 rounded-full font-bold shadow-lg hover:bg-green-50 transition-transform hover:scale-105">
@@ -204,7 +204,7 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section className="px-6 md:px-16 py-16">
+      <section id="testimonials" className="px-6 md:px-16 py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {[
             { name: "Aarav Sharma", loc: "Kathmandu", text: "“Fresh Picks makes grocery shopping so easy. The vegetables are always fresh and delivery is super fast!”", img: "12" },
@@ -226,7 +226,7 @@ export default function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-green-800 text-white px-6 md:px-16 py-16">
+      <footer id="Contact" className="bg-green-800 text-white px-6 md:px-16 py-16">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <h4 className="text-xl font-bold font-[cursive] mb-4">Fresh Picks</h4>

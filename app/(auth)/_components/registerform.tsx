@@ -200,6 +200,7 @@ export default function RegisterForm() {
             </p>
           )}
         </div>
+        
 
         {/* BUTTON */}
         <button
